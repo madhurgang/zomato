@@ -1,0 +1,45 @@
+Arguments: 
+  /Users/manasusharia/.nvm/versions/node/v8.11.3/bin/node /Users/manasusharia/.yarn/bin/yarnpkg install
+
+PATH: 
+  /Users/manasusharia/.yarn/bin:/Users/manasusharia/.config/yarn/global/node_modules/.bin:/Users/manasusharia/.nvm/versions/node/v8.11.3/bin:/Library/Frameworks/Python.framework/Versions/3.6/bin:/usr/local/Cellar/python/2.7.13_1/libexec/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Users/manasusharia/Library/Android/sdk/platform-tools
+
+Yarn version: 
+  1.9.4
+
+Node version: 
+  8.11.3
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: getaddrinfo ENOTFOUND registry.yarnpkg.com registry.yarnpkg.com:443
+      at errnoException (dns.js:50:10)
+      at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:92:26)
+
+npm manifest: 
+  {
+    "main": "node_modules/expo/AppEntry.js",
+    "scripts": {
+      "start": "expo start",
+      "android": "expo start --android",
+      "ios": "expo start --ios",
+      "eject": "expo eject"
+    },
+    "dependencies": {
+      "expo": "^31.0.2",
+      "react": "16.5.0",
+      "react-native": "https://github.com/expo/react-native/archive/sdk-31.0.0.tar.gz"
+    },
+    "devDependencies": {
+      "babel-preset-expo": "^5.0.0"
+    },
+    "private": true
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
