@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button, FlatList } from 'react-native';
+import { StyleSheet, Text, View, Button, FlatList, TextInput } from 'react-native';
 import { ZOMATO_API } from './constants';
 import axios from 'axios';
 import { createStackNavigator, createAppContainer } from "react-navigation";
@@ -7,10 +7,13 @@ import Inner from './comp/Inner';
 import Inner2 from './comp/Inner2';
 import { Ionicons } from '@expo/vector-icons';
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs'
+import HomeInner from './comp/HomeInner';
+import Restaurants from './comp/Restaurant';
 
 class App extends React.Component {
   state = {
-    categories: []
+    restaurants: [],
+    searchText: ''
   }
 
   static navigationOptions = {
@@ -18,11 +21,14 @@ class App extends React.Component {
   }
 
   getCatFromZomato = () => {
-    const url = 'https://developers.zomato.com/api/v2.1/categories'
+    const entity_id = 14
+    const query = this.state.searchText
+    const url = `https://developers.zomato.com/api/v2.1/search?entity_id=14&entity_type=city&q=${this.state.searchText}&count=10`
     axios.get(url, { headers: { 'user-key': ZOMATO_API } }).then(
       (res) => {
+        console.log('response is:', res.data.restaurants)
         this.setState({
-          categories: res.data.categories
+          restaurants: res.data.restaurants
         })
       }
     ).catch(
@@ -32,30 +38,44 @@ class App extends React.Component {
     )
   }
 
+  handleChangeSearch = (text) => {
+    this.setState({
+      searchText: text
+    })
+  }
+
+  handleSubmit = () => {
+    this.getCatFromZomato()
+  }
+
   render() {
     console.log('render called')
     return (
       <View>
+        <TextInput
+          onChangeText={(v) => this.handleChangeSearch(v)}
+          value={this.state.searchText}
+          onSubmitEditing={() => this.handleSubmit()}
+          placeholder='Search restaurant' />
         <FlatList
-          data={this.state.categories}
-          keyExtractor={(item, index) => item.categories.id.toString()}
-          renderItem={({ item }) => <Text>{item.categories.name}</Text>}
+          data={this.state.restaurants}
+          keyExtractor={(item, index) => item.restaurant.id.toString()}
+          renderItem={({ item }) => <Button title={item.restaurant.name}
+            onPress={() => this.props.navigation.navigate('Restaurant', { 'id': item.restaurant.id })} />}
         />
-        <Button onPress={() => this.props.navigation.navigate('InnerUrl')} title='go to inner' />
-        <Button onPress={() => this.props.navigation.navigate('NewInner')} title='go to inner2' />
       </View>
     )
   }
-
-  componentDidMount = () => {
-    this.getCatFromZomato()
-    console.log('this.props.navigation:', this.props.navigation)
-  }
 }
+
+const HomeNavigator = createStackNavigator({
+  Home: App,
+  Restaurant: Restaurants
+})
 
 const AppNavigator = createMaterialBottomTabNavigator(
   {
-    Home: App,
+    Home: HomeNavigator,
     InnerUrl: Inner,
     NewInner: Inner2,
   },
