@@ -42,8 +42,8 @@ export default class Restaurants extends React.Component {
       return <Text>Loading.....</Text>
   }
 
-  componentDidMount = async () => {
-    const id = await this.props.navigation.state.params.id
+  componentDidMount = () => {
+    const id = this.props.navigation.state.params.id
     this.getRestFromZomato(id)
   }
 }

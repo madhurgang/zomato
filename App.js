@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Button, FlatList, TextInput } from 'react-native';
-import { ZOMATO_API } from './constants';
+import { ZOMATO_API, ZOMATO_BASE_URL } from './constants';
 import axios from 'axios';
 import { createStackNavigator, createAppContainer } from "react-navigation";
 import Inner from './comp/Inner';
@@ -9,26 +9,41 @@ import { Ionicons } from '@expo/vector-icons';
 import { createMaterialBottomTabNavigator } from 'react-navigation-material-bottom-tabs'
 import HomeInner from './comp/HomeInner';
 import Restaurants from './comp/Restaurant';
+import { Button as Btn } from 'react-native-paper';
 
 class App extends React.Component {
   state = {
     restaurants: [],
-    searchText: ''
+    searchText: '',
+    start: 0,
+    pageSize: 10,
+    totalCount: 0
   }
 
   static navigationOptions = {
     title: 'Home'
   }
 
-  getCatFromZomato = () => {
-    const entity_id = 14
-    const query = this.state.searchText
-    const url = `https://developers.zomato.com/api/v2.1/search?entity_id=14&entity_type=city&q=${this.state.searchText}&count=10`
+  handleNextPage = () => {
+    this.setState({
+      start: this.state.start + this.state.pageSize
+    }, () => this.getRestFromZomato())
+  }
+
+  handlePrevPage = () => {
+    this.setState({
+      start: this.state.start - this.state.pageSize
+    }, () => this.getRestFromZomato())
+  }
+
+  getRestFromZomato = () => {
+    const url = `${ZOMATO_BASE_URL}/search?entity_id=14&entity_type=city&q=${this.state.searchText}&count=${this.state.pageSize}&start=${this.state.start}`
     axios.get(url, { headers: { 'user-key': ZOMATO_API } }).then(
       (res) => {
-        console.log('response is:', res.data.restaurants)
+        console.log('response is:', res)
         this.setState({
-          restaurants: res.data.restaurants
+          restaurants: res.data.restaurants,
+          totalCount: res.data.results_found
         })
       }
     ).catch(
@@ -45,7 +60,9 @@ class App extends React.Component {
   }
 
   handleSubmit = () => {
-    this.getCatFromZomato()
+    this.setState({
+      start: 0
+    }, () => this.getRestFromZomato())
   }
 
   render() {
@@ -63,8 +80,19 @@ class App extends React.Component {
           renderItem={({ item }) => <Button title={item.restaurant.name}
             onPress={() => this.props.navigation.navigate('Restaurant', { 'id': item.restaurant.id })} />}
         />
+        <Btn icon="chevron-left" color={'indigo'} mode="contained" dark={true}
+          onPress={() => this.handlePrevPage()}
+          disabled={this.state.start < 10}
+        >Prev</Btn>
+        <Btn icon="chevron-right" color={'indigo'} mode="contained" dark={true}
+          disabled={this.state.start > (this.state.totalCount - this.state.pageSize)}
+          onPress={() => this.handleNextPage()}>Next</Btn>
       </View>
     )
+  }
+
+  componentDidMount = () => {
+    this.getRestFromZomato()
   }
 }
 
