@@ -2,7 +2,7 @@ import React from 'react'
 import { View } from 'react-native'
 import { TextInput, Button, Headline, Snackbar } from 'react-native-paper';
 import axios from 'axios'
-import { checkUserExist } from './Utils/Helpers';
+import { checkUserExist, saveDataToLocal, getDataFromLocal } from './Utils/Helpers';
 
 export default class Auth extends React.Component {
   state = {
@@ -23,16 +23,16 @@ export default class Auth extends React.Component {
   handleLogin = async () => {
     if (this.state.username.length > 0 && this.state.password.length > 0) {
       const currentUser = {
-        name: this.state.username,
+        username: this.state.username,
         password: this.state.password
       }
 
       axios.get('http://localhost:3000/users')
-        .then(users => {
-          const status = checkUserExist(currentUser, users.data)
-          console.log('status', status)
-          if (status)
+        .then(async (users) => {
+          if (checkUserExist(currentUser, users.data)) {
+            await saveDataToLocal('user', currentUser)
             this.props.navigation.navigate('Home')
+          }
           else
             alert('invalid login information')
         })
@@ -90,5 +90,14 @@ export default class Auth extends React.Component {
         </Snackbar>
       </View>
     )
+  }
+
+  componentDidMount = async () => {
+    const existing = await getDataFromLocal('user')
+    if (existing) {
+      console.log('existing:', existing)
+      this.props.navigation.navigate('Home')
+    }
+    // if exist redirect to home
   }
 }

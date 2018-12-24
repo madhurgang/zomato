@@ -3,6 +3,7 @@ import { View, Button, FlatList, TextInput } from 'react-native';
 import { ZOMATO_API, ZOMATO_BASE_URL } from './constants';
 import axios from 'axios';
 import { Button as Btn } from 'react-native-paper';
+import { removeDataFromLocal } from './Utils/Helpers';
 
 export default class Core extends React.Component {
   state = {
@@ -58,6 +59,11 @@ export default class Core extends React.Component {
     }, () => this.getRestFromZomato())
   }
 
+  removeitem = async () => {
+    await removeDataFromLocal('user')
+    this.props.navigation.navigate('Auth')
+  }
+
   render() {
     console.log('render called')
     return (
@@ -80,7 +86,7 @@ export default class Core extends React.Component {
         <Btn icon="chevron-right" color={'indigo'} mode="contained" dark={true}
           disabled={this.state.start > (this.state.totalCount - this.state.pageSize)}
           onPress={() => this.handleNextPage()}>Next</Btn>
-        <Btn onPress={() => this.props.navigation.navigate('Auth')}>Logout</Btn>
+        <Btn onPress={() => this.removeitem()}>Logout</Btn>
       </View>
     )
   }
